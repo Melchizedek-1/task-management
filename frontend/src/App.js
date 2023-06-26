@@ -1,10 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { addTask, getTasks } from "./api/taskApis";
+import axios from "axios";
 
 function App() {
     const [showModal, setShowModal] = useState(false);
+    const [showAdd, setShowAdd] = useState(false);
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [status, setStatus] = useState('');
+    const [editTitle, seteditTitle] = useState('');
+    const [editdescription, seteditdescription] = useState('');
+    const [editStatus, seteditStatus] = useState('');
+    const [allTasks, setAllTasks] = useState([]);
+    const [editTask, setEditTask] = useState('');
+
+    useEffect(() => {
+        axios.get("/api/tasks")
+          .then((res) => {
+            setAllTasks(res.data.tasks);
+          })
+          .catch((err) => console.log(err));
+      }, [showAdd]);
+
+    const submitTaskHandler = () => {
+        addTask(title, description, status);
+        setShowAdd(false);
+    }
 
   return (
     <div className="p-8">
+        <div className="py-4">
+            <div className="cursor-pointer" onClick={() => setShowAdd(!showAdd)}>
+                Add Task
+            </div>
+            {showAdd && <div>
+                <div className="flex flex-row gap-4 py-2">
+                    <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} className="border rounded w-full py-2 px-3" />
+                    <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} className="border rounded w-full py-2 px-3" />
+                </div>
+                <div className="flex flex-row gap-4 py-2">
+                    <select id="underline_select" value={status} onChange={(e) => setStatus(e.target.value)} className="block py-2.5 px-0 w-full border-0 border-b-2 ">
+                        <option>Choose a status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <input type="submit" onClick={submitTaskHandler} className="border cursor-pointer text-white bg-green-500 rounded w-full py-2 px-3" />
+                </div>
+            </div>}
+        </div>
       
 
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -21,99 +65,27 @@ function App() {
                         Status
                     </th>
                     <th scope="col" className="px-6 py-3">
-                        Price
-                    </th>
-                    <th scope="col" className="px-6 py-3">
                         Action
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                {allTasks?.map((task, index) =>
+                <tr key={index} className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Apple MacBook Pro 17"
+                        {task?.title}
                     </th>
                     <td className="px-6 py-4">
-                        Silver
+                        {task?.description}
                     </td>
                     <td className="px-6 py-4">
-                        Laptop
+                        {task?.status}
                     </td>
                     <td className="px-6 py-4">
-                        $2999
-                    </td>
-                    <td className="px-6 py-4">
-                        <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                        <div onClick={() => { setShowModal(true); setEditTask(task); seteditTitle(task?.title); seteditdescription(task?.description); seteditStatus(task?.status);}} className="font-medium text-blue-600 cursor-pointer dark:text-blue-500 hover:underline">Edit</div>
                     </td>
                 </tr>
-                <tr className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Microsoft Surface Pro
-                    </th>
-                    <td className="px-6 py-4">
-                        White
-                    </td>
-                    <td className="px-6 py-4">
-                        Laptop PC
-                    </td>
-                    <td className="px-6 py-4">
-                        $1999
-                    </td>
-                    <td className="px-6 py-4">
-                        <div onClick={() => setShowModal(true)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</div>
-                    </td>
-                </tr>
-                <tr className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Magic Mouse 2
-                    </th>
-                    <td className="px-6 py-4">
-                        Black
-                    </td>
-                    <td className="px-6 py-4">
-                        Accessories
-                    </td>
-                    <td className="px-6 py-4">
-                        $99
-                    </td>
-                    <td className="px-6 py-4">
-                        <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                    </td>
-                </tr>
-                <tr className="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Google Pixel Phone
-                    </th>
-                    <td className="px-6 py-4">
-                        Gray
-                    </td>
-                    <td className="px-6 py-4">
-                        Phone
-                    </td>
-                    <td className="px-6 py-4">
-                        $799
-                    </td>
-                    <td className="px-6 py-4">
-                        <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Apple Watch 5
-                    </th>
-                    <td className="px-6 py-4">
-                        Red
-                    </td>
-                    <td className="px-6 py-4">
-                        Wearables
-                    </td>
-                    <td className="px-6 py-4">
-                        $999
-                    </td>
-                    <td className="px-6 py-4">
-                        <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                    </td>
-                </tr>
+                )}
             </tbody>
         </table>
     </div>
@@ -128,19 +100,19 @@ function App() {
                         <label className=" createFormLabels block text-sm mb-2">
                             Title
                         </label>
-                        <input  className="border rounded w-full py-2 px-3" id="group_name" type="text" />
+                        <input value={editTitle} onChange={() => seteditTitle} className="border rounded w-full py-2 px-3" id="group_name" type="text" />
                     </div>
                     <div className="">
                         <label className=" createFormLabels block text-sm mb-2">
                             Description
                         </label>
-                        <input  className="border rounded w-full py-2 px-3" id="group_name" type="text" />
+                        <input value={editdescription} onChange={(e) => seteditdescription(e.target.value)} className="border rounded w-full py-2 px-3" id="group_name" type="text" />
                     </div>
                     <div className="">
                         <label className=" createFormLabels block text-sm mb-2">
                             Status
                         </label>
-                        <select id="underline_select" className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+                        <select id="underline_select" value={editStatus} onChange={() => seteditStatus} className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none focus:outline-none focus:ring-0 focus:border-gray-200 peer">
                             <option>Choose a status</option>
                             <option value="Pending">Pending</option>
                             <option value="In progress">In progress</option>
